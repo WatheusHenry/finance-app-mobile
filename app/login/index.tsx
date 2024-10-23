@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Link, Stack, useRouter } from 'expo-router'; // Importando useRouter
+import { Link, Stack, useRouter } from 'expo-router'; 
 import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Importando AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as AppleAuthentication from 'expo-apple-authentication';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -29,7 +30,7 @@ export default function LoginScreen() {
 
   return (
     <>
-      {/* <Stack.Screen options={{ headerShown: false }} /> */}
+      <Stack.Screen options={{ headerShown: false }} />
       <ThemedView style={styles.container}>
         <ThemedText type="title">Bem-vindo de volta!</ThemedText>
         <TextInput
@@ -52,6 +53,30 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.button} onPress={handleLogin}>
           <ThemedText type="default">Entrar</ThemedText>
         </TouchableOpacity>
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={5}
+          style={styles.buttonApple}
+          onPress={async () => {
+            try {
+              const credential = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                  AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                  AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+              });
+              if (credential.identityToken) {
+                await AsyncStorage.setItem('access_token', credential.identityToken);
+                router.push('/');
+              } else {
+                console.warn('identityToken is null');
+              }
+            } catch (error: any) {
+                console.error(error)
+            }
+          }}
+        />
         <Link href="/register" style={styles.link}>
           <ThemedText type="link">Criar uma conta</ThemedText>
         </Link>
@@ -86,6 +111,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#007bff',
     borderRadius: 5,
     alignItems: 'center',
+  },
+  buttonApple: {
+    width: 150,
+    height: 44,
   },
   link: {
     marginTop: 15,

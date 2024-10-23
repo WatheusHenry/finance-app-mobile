@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://127.0.0.1:3000'; // Substitua pela URL da sua API
+const API_URL = 'http://172.18.3.164:3000'; // Substitua pela URL da sua API
 
 export interface LoginData {
   email: string;

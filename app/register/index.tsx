@@ -1,18 +1,30 @@
-import { Link, Stack } from 'expo-router';
-import { StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Link, Stack, useRouter } from 'expo-router';
+import { StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
 import { useState } from 'react';
 
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import AuthService, { RegisterData } from '@/services/authService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function RegisterScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
-  const handleRegister = () => {
-    // Lógica para registrar o usuário, como chamada à API
-    console.log('Registering user:', { name, email, password });
+  const router = useRouter();
+  const handleRegister = async () => {
+    const registerData: RegisterData = { nome: name, email, senha: password };
+    try {
+      const response = await AuthService.register(registerData);
+      console.log(response)
+      await AsyncStorage.setItem('access_token', response.access_token);
+      Alert.alert('Sucesso', 'Conta criada com sucesso!');
+      router.push('/');
+    } catch (error:any) {
+      console.error(error);
+      Alert.alert(error, 'Erro ao registrar. Verifique os dados inseridos.');
+    }
   };
 
   return (
@@ -40,6 +52,31 @@ export default function RegisterScreen() {
           secureTextEntry
           value={password}
           onChangeText={setPassword}
+        />
+
+        <AppleAuthentication.AppleAuthenticationButton
+          buttonType={AppleAuthentication.AppleAuthenticationButtonType.SIGN_IN}
+          buttonStyle={AppleAuthentication.AppleAuthenticationButtonStyle.BLACK}
+          cornerRadius={5}
+          style={styles.buttonApple}
+          onPress={async () => {
+            try {
+              const credential = await AppleAuthentication.signInAsync({
+                requestedScopes: [
+                  AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+                  AppleAuthentication.AppleAuthenticationScope.EMAIL,
+                ],
+              });
+              if (credential.identityToken) {
+                await AsyncStorage.setItem('access_token', credential.identityToken);
+                router.push('/');
+              } else {
+                console.warn('identityToken is null');
+              }
+            } catch (error: any) {
+                console.error(error)
+            }
+          }}
         />
 
         <TouchableOpacity style={styles.button} onPress={handleRegister}>
@@ -84,5 +121,9 @@ const styles = StyleSheet.create({
   },
   link: {
     marginTop: 15,
+  },
+  buttonApple: {
+    width: 200,
+    height: 44,
   },
 });
