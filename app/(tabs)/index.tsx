@@ -1,70 +1,145 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
+import React from 'react';
+import { View, StyleSheet, FlatList, SafeAreaView, Image, TouchableOpacity } from 'react-native';
 import { ThemedView } from '@/components/ThemedView';
+import { ThemedText } from '@/components/ThemedText';
+
+const transactions = [
+  { id: '1', description: 'Compra no mercado', amount: '- R$ 150,00', date: '22/10/2024' },
+  { id: '2', description: 'Salário', amount: '+ R$ 3.500,00', date: '20/10/2024' },
+  { id: '3', description: 'Cinema', amount: '- R$ 45,00', date: '18/10/2024' },
+  { id: '4', description: 'Gasolina', amount: '- R$ 200,00', date: '17/10/2024' },
+];
 
 export default function HomeScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+    <SafeAreaView style={styles.safeArea}>
+      <ThemedView style={styles.container}>
+        {/* Header com Nome do Usuário e Foto de Perfil */}
+        <View style={styles.headerBackground}>
+
+          <View style={styles.header}>
+            <Image
+              source={{ uri: 'https://via.placeholder.com/60' }} // Substitua pela URL da imagem do perfil
+              style={styles.profileImage}
+            />
+            <ThemedText style={styles.username}>Olá, Matheus!</ThemedText>
+          </View>
+
+          {/* Saldo do Usuário */}
+          <View style={styles.balanceContainer}>
+            <ThemedText style={styles.balanceText}>Saldo disponível</ThemedText>
+            <ThemedText style={styles.balanceAmount}>R$ 2.150,00</ThemedText>
+          </View>
+
+        </View>
+        {/* Últimas Transações */}
+        <View style={styles.transactionsContainer}>
+          <ThemedText style={styles.sectionTitle}>Últimas transações</ThemedText>
+          <FlatList
+            data={transactions}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View style={styles.transactionItem}>
+                <ThemedText style={styles.transactionDescription}>{item.description}</ThemedText>
+                <ThemedText style={styles.transactionAmount}>{item.amount}</ThemedText>
+                <ThemedText style={styles.transactionDate}>{item.date}</ThemedText>
+              </View>
+            )}
+          />
+        </View>
+
+        {/* Botão Fixado na Parte Inferior */}
+        <TouchableOpacity style={styles.fabButton}>
+          <ThemedText style={styles.fabButtonText}>Adicionar Transação</ThemedText>
+        </TouchableOpacity>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  safeArea: {
+    flex: 1,
+    backgroundColor: 'transparent',
+  },
+  container: {
+    flex: 1,
+  },
+  headerBackground:{
+    backgroundColor:'#4CAF50',
+  },
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    padding:20
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  profileImage: {
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    marginRight: 10,
+    backgroundColor: 'white'
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  username: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  balanceContainer: {
+    padding: 20,
+    
+  },
+  balanceText: {
+    fontSize: 18,
+    color: '#fff',
+    marginBottom: 5,
+  },
+  balanceAmount: {
+    fontSize: 32,
+    lineHeight:32,
+    fontWeight: 'bold',
+    color: '#fff',
+  },
+  transactionsContainer: {
+    padding:20,
+    flex: 1,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  transactionItem: {
+    paddingVertical: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  transactionDescription: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  transactionAmount: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  transactionDate: {
+    fontSize: 14,
+    color: '#888',
+  },
+  fabButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 30,
+    padding: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+
+    bottom: 30,
+    margin: 'auto',
+    width: '80%',
+  },
+  fabButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
   },
 });
